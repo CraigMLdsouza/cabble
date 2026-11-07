@@ -1,8 +1,14 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0d1117"><meta name="description" content="Cabble: a daily cable management puzzle for developers. Reorder servers, flip cables, fit every lane. One new rack every day plus infinite levels.">
-<title>Cabble</title>
+<meta name="theme-color" content="#0d1117">
+<meta name="description" content="Play Cabble, the daily server-rack logic puzzle. Reorder servers, reroute cables and clear every lane. Solve a fresh no-hint challenge each day or play endless campaign levels.">
+<meta name="application-name" content="Cabble"><meta name="keywords" content="Cabble, daily puzzle, logic game, cable puzzle, server rack game, brain teaser"><meta name="author" content="Cabble"><meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://cabble.vercel.app/">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Cabble"><meta property="og:url" content="https://cabble.vercel.app/"><meta property="og:title" content="Cabble — The Daily Rack Puzzle"><meta property="og:description" content="Untangle the rack. Reorder servers, reroute cables and clear every lane. A fresh no-hint puzzle every day."><meta property="og:image" content="https://cabble.vercel.app/logo.png"><meta property="og:image:width" content="192"><meta property="og:image:height" content="192"><meta property="og:image:alt" content="Cabble logo">
+<meta name="twitter:card" content="summary"><meta name="twitter:title" content="Cabble — The Daily Rack Puzzle"><meta name="twitter:description" content="One rack. Every day. No hints. Can you clear it?"><meta name="twitter:image" content="https://cabble.vercel.app/logo.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png"><link rel="apple-touch-icon" sizes="192x192" href="/logo.png">
+<title>Cabble — The Daily Rack Puzzle</title>
 <style>
 :root{--bg:#f6f8fa;--panel:#fff;--bd:#d0d7de;--tx:#1f2328;--mut:#656d76;--acc:#0969da;--ok:#1a7f37;--bad:#cf222e;--w:min(94vw,600px);--mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;box-sizing:border-box;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1117;--panel:#161b22;--bd:#30363d;--tx:#e6edf3;--mut:#8b949e;--acc:#58a6ff;--ok:#3fb950;--bad:#f85149}}
@@ -38,18 +44,22 @@ kbd{display:none;font:11px var(--mono);color:var(--mut);margin-left:5px;border:1
 #grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:12px 0}#grid button{padding:7px 0;line-height:1.1}#grid small{display:block;font-size:9px;color:#d29922;min-height:11px}#grid button.cur{border-color:var(--acc)}
 #tut{display:none;flex-direction:column;gap:6px;background:var(--panel);border:1px solid var(--bd);border-left:3px solid var(--ok);border-radius:8px;padding:10px 12px}#tt{font-weight:700;color:var(--ok)}#tx{font-size:12.5px;line-height:1.5}.tr{display:flex;gap:6px}.tr button{padding:8px}#tk{flex:.45}
 .tb button.new{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
+#hn:disabled{opacity:.38}.hint-count{font-size:10px;color:var(--mut);text-align:center;margin-top:-5px}.hint-count b{color:var(--acc)}
+.brand{display:flex;align-items:center;gap:7px}.brand-logo{width:24px;height:24px;object-fit:contain;border-radius:5px;flex:none}
+#tut .tut-task{font-size:11px;color:var(--mut);border-top:1px solid var(--bd);padding-top:6px}
 .st3{display:flex;gap:6px;margin:10px 0}.st3 span{flex:1;border:1px solid var(--bd);border-radius:8px;padding:6px;color:var(--mut);font-size:11px}.st3 b{display:block;font-size:18px;color:var(--tx)}
 #dp{user-select:text;-webkit-user-select:text;text-align:left;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:10px;white-space:pre-wrap;margin:8px 0;font:13px/1.5 var(--mono)}#dn{color:var(--mut);margin:6px 0 10px}
 @media (min-width:700px){body{padding-top:20px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
 </style></head><body>
-<main id="app">
-<div class="top"><div class="ps"><i>$</i> cabble <u id="fl">--level</u> <b id="lv">1</b></div><div class="tb"><button id="dl">📅</button><button id="mn">☰</button><button id="sd">🔊</button></div></div>
+<main id="app" aria-label="Cabble daily server rack logic puzzle">
+<div style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap"><h1>Cabble — The Daily Rack Puzzle</h1><p>Reorder servers and reroute cables to fit every cable within the rack lanes. Play an endless campaign or solve one shared daily puzzle with no hints.</p></div>
+<div class="top"><div class="ps brand"><img class="brand-logo" src="/logo.png" width="24" height="24" alt="Cabble logo"> cabble <u id="fl">--level</u> <b id="lv">1</b></div><div class="tb"><button id="dl">📅</button><button id="mn">☰</button><button id="sd">🔊</button></div></div>
 <div id="coach"></div>
-<div id="tut"><div id="tt"></div><div id="tx"></div><div class="tr"><button id="tk">skip</button><button class="pri" id="tc">continue ▶</button></div></div>
+<div id="tut"><div id="tt"></div><div id="tx"></div><div class="tut-task" id="tutTask">Your move: complete the action on the rack.</div><div class="tr"><button id="tk">skip</button><button class="pri" id="tc">continue ▶</button></div></div>
 <div class="chips"><span id="ofc">overflow <b id="of">0</b></span><span>moves <b id="mv">0</b></span><span>par <b id="pr">0</b></span></div>
 <div id="rack"><div class="wb"><i></i><i></i><i></i><span id="ttl">rack-01</span></div><canvas id="cv"></canvas></div>
-<div class="btns"><button id="pv">◀</button><button id="un">undo<kbd>z</kbd></button><button id="hn">hint<kbd>h</kbd></button><button id="rs">reset<kbd>r</kbd></button><button id="hp">?</button><button id="nx">▶</button></div>
+<div class="btns"><button id="pv">◀</button><button id="un">undo<kbd>z</kbd></button><button id="hn">hint <kbd>h</kbd></button><button id="rs">reset<kbd>r</kbd></button><button id="hp">?</button><button id="nx">▶</button></div><div class="hint-count" id="hintStatus">Campaign hints today: <b>3 / 3</b></div>
 </main>
 <div id="ov" class="ovl"><div><div class="ok">✔ build passed</div><div class="stars" id="stars"></div><div id="om"></div><button class="pri" id="ob" style="width:100%">next level<kbd>↵</kbd></button></div></div>
 <div id="dly" class="ovl"><div style="text-align:center"><div class="ok">✔ daily solved</div><div class="stars" id="ds"></div><div id="dm" style="color:var(--mut)"></div><div class="st3"><span><b id="s1">0</b>played</span><span><b id="s2">0</b>streak</span><span><b id="s3">0</b>best</span></div><pre id="dp"></pre><div id="dn"></div><div class="btns"><button class="pri" id="dsh">share</button><button id="dx">play campaign</button></div></div></div>
@@ -62,7 +72,7 @@ const regionOf=L=>{const c=(L-1)/3|0;return REG[c%8]+(c>=8?'-'+((c>>3)+1):'')};
 let L=1,n=4,cap=2,cabs=[],side=[],order=[],startS=null,par=1,moves=0,hist=[],solved=false,unlocked=1,stars={},AC=null,sndOn=true,gm='camp',ts=0,tutOk=false,mlog=[];
 let hintO=null,hintMsg='',sol=null,W=400,rowH=44,pad=12,lane=14,sx=80,sw=240,ay=[],aLane=[],drag=null,winT=0,pts=[];
 try{unlocked=+localStorage.getItem('rk3_u')||1;stars=JSON.parse(localStorage.getItem('rk3_s')||'{}');sndOn=localStorage.getItem('rk2_snd')!=='0'}catch(e){}
-L=unlocked;
+try{L=Math.min(unlocked,Math.max(1,+localStorage.getItem('cb_level')||unlocked))}catch(e){L=unlocked}
 function rng(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function posOf(){const p=[];order.forEach((id,i)=>p[id]=i);return p}
 function need(){const p=posOf(),c=[Array(n).fill(0),Array(n).fill(0)];
@@ -89,7 +99,7 @@ function coachText(){const o=ovf();if(solved)return 'Rack tidy. Every row is wit
 if(gm==='camp'&&L===1)return o?'A cable has no free lane. Tap the red cable to move it to the other side.':'Nice!';
 if(gm==='camp'&&L===2)return o?'Too many cables cross the red rows. Drag a server up or down to shorten its cables.':'Nice!';
 if(gm==='camp'&&L===3)return o?'Use both tricks: tap a cable to switch sides, drag a server to shorten its cables.':'Nice!';
-return o?o+' cable'+(o>1?'s are':' is')+' overflowing. Red rows hold too many cables. Stuck? Run hint.':'All lanes are free!'}
+return o?o+' cable'+(o>1?'s are':' is')+' overflowing. Red rows hold too many cables.'+(gm==='daily'?' Find a clean arrangement — daily racks have no hints.':' Stuck? You have '+hintsLeft()+' hint(s) left today.'):'All lanes are free!'}
 function allMoves(){const a=[];for(let k=0;k<cabs.length;k++)a.push({t:'c',k});for(let i=0;i<n;i++)for(let j=0;j<n;j++)if(i!==j)a.push({t:'s',i,j});return a}
 function ap(m){if(m.t==='c')side[m.k]^=1;else{const[x]=order.splice(m.i,1);order.splice(m.j,0,x)}}
 function hintMove(){const o0=[...order],s0=[...side],A=allMoves(),rs=()=>{order=[...o0];side=[...s0]};let res=null;
@@ -100,13 +110,13 @@ rs();return res}
 function restore(x){order=[...x.o];side=[...x.s];moves=x.m;aLane=[];hintO=null;hintMsg='';hud()}
 function hud(){const o=ovf();$('#of').textContent=o;$('#ofc').classList.toggle('ok',o===0);$('#mv').textContent=moves;$('#pr').textContent=gm==='tut'?'-':par;$('#lv').textContent=gm==='daily'?'#'+pno():gm==='tut'?'tutorial':L;$('#fl').textContent=gm==='daily'?'--daily':gm==='tut'?'--mode':'--level';
 $('#ttl').textContent=(gm==='daily'?'daily':gm==='tut'?'tutorial':regionOf(L))+' · '+cap+' lanes/side'+(gm==='camp'&&stars[L]?' · '+'★'.repeat(stars[L]):'');
-$('#coach').style.display=gm==='tut'?'none':'flex';$('#tut').style.display=gm==='tut'?'flex':'none';$('#coach').textContent=hintMsg||coachText();$('#pv').disabled=L<=1||gm!=='camp';$('#nx').disabled=L>=unlocked||gm!=='camp';$('#un').disabled=!hist.length||solved;$('#dl').classList.toggle('new',!(dsave&&dsave.d===dayNo()));if(gm==='tut')tutCheck()}
+$('#coach').style.display=gm==='tut'?'none':'flex';$('#tut').style.display=gm==='tut'?'flex':'none';$('#coach').textContent=hintMsg||coachText();$('#pv').disabled=L<=1||gm!=='camp';$('#nx').disabled=L>=unlocked||gm!=='camp';$('#un').disabled=!hist.length||solved;$('#hn').style.display=gm==='daily'?'none':'';$('#hn').disabled=gm==='daily'||hintsLeft()<=0||solved;$('#hintStatus').style.display=gm==='daily'?'none':'';$('#hintStatus').innerHTML='Campaign hints today: <b>'+hintsLeft()+' / '+HINTS_PER_DAY+'</b>';$('#dl').classList.toggle('new',!(dsave&&dsave.d===dayNo()));if(gm==='tut')tutCheck()}
 function fit(){const pw=Math.min(innerWidth*.94,600);document.documentElement.style.setProperty('--w',pw+'px');W=Math.floor(pw-14);
 const app=$('#app'),chrome=app.offsetHeight-cv.offsetHeight+app.getBoundingClientRect().top+scrollY+16;
 rowH=Math.max(34,Math.min(W*.28,120,(innerHeight-chrome-pad*2)/n));lane=Math.max(10,W*.034);
 const M=lane*(cap+2.3)+6;sx=M;sw=W-2*M;const H=pad*2+n*rowH,d=Math.min(window.devicePixelRatio||1,2.5);
 cv.style.width=W+'px';cv.style.height=H+'px';cv.width=W*d;cv.height=H*d;ctx.setTransform(d,0,0,d,0,0)}
-function start(){gen();restore({o:startS.o,s:startS.s,m:0});hist=[];mlog=[];solved=false;drag=null;ay=[];aLane=[];hud();fit()}
+function start(){if(hintUse.day!==dayNo())hintUse={day:dayNo(),count:0};gen();restore({o:startS.o,s:startS.s,m:0});hist=[];mlog=[];solved=false;drag=null;ay=[];aLane=[];try{if(gm==='camp')localStorage.setItem('cb_level',String(L))}catch(e){}hud();fit()}
 const buzz=ms=>{try{sndOn&&navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
 function tone(f,d=.1,ty='triangle',v=.07){if(!sndOn)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.type=ty;o.frequency.value=f;g.gain.setValueAtTime(v,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+d+.02)}catch(e){}}
 function win(){if(gm==='tut'){tone(784,.2,'sine',.09);return}solved=true;winT=performance.now();buzz([20,40,20]);[523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,.25,'sine',.09),i*110));
@@ -131,21 +141,24 @@ $('#rs').onclick=()=>{$('#ov').style.display='none';restore({o:startS.o,s:startS
 $('#ob').onclick=()=>{$('#ov').style.display='none';L++;start()};
 $('#pv').onclick=()=>{if(L>1){L--;start()}};
 $('#nx').onclick=()=>{if(L<unlocked){L++;start()}};
-$('#hn').onclick=()=>{if(solved)return;const m=hintMove();if(m.t==='c'){hintO={t:'c',k:m.k};hintMsg='hint: tap the glowing cable to move it to the other side.'}else{const id=order[m.i];hintO={t:'s',id,to:m.j};hintMsg='hint: drag '+nm(id)+' to the dashed slot.'}hud()};
+$('#hn').onclick=()=>{if(solved||gm==='daily'||hintsLeft()<=0)return;saveHintUse();const m=hintMove();if(m.t==='c'){hintO={t:'c',k:m.k};hintMsg='hint: tap the glowing cable to move it to the other side.'}else{const id=order[m.i];hintO={t:'s',id,to:m.j};hintMsg='hint: drag '+nm(id)+' to the dashed slot.'}hud()};
 $('#hp').onclick=()=>loadTut(0);
 const TUT=[
-{t:'Lanes & overflow',x:'Servers stack in a rack. Each cable runs down the left or right channel between its two servers and takes one lane. This side has 2 lanes, but 3 cables cross the same rows, so one cable is red (overflow). Tap the red cable to move it to the other side.',n:4,cap:2,o:[0,1,2,3],c:[[0,3],[1,3],[0,2]],s:[0,0,0],z:[[0,1,2,3],[0,1,0]],lock:'drag'},
-{t:'Reorder servers',x:'Cables get shorter when connected servers sit next to each other. These two cables overlap and the channel has only 1 lane. Flipping is off this time: drag db-03 up one slot, next to web-01.',n:4,cap:1,o:[0,1,2,3],c:[[0,2],[1,3]],s:[0,0],z:[[0,2,1,3],[0,0]],lock:'flip'},
-{t:'Use both',x:'Real puzzles need both tricks. Neither flipping nor reordering alone clears this rack, so combine them: move a cable to the other side, then drag servers until every row fits in 1 lane.',n:4,cap:1,o:[0,2,1,3],c:[[0,1],[2,3],[0,3]],s:[1,0,1],z:[[0,1,2,3],[0,0,1]]},
-{t:'Hint & undo',x:'Stuck? Tap hint: it glows the exact move to make. Made a mistake? Undo is free and gives the move back (shortcut: z). Solve this 5-server rack, using hint if you like.',n:5,cap:2,o:[0,1,2,3,4],c:[[0,1],[1,2],[2,3],[3,4],[0,2]],s:[0,0,1,1,0],z:[[0,1,2,3,4],[0,0,1,1,1]]},
-{t:'Par, stars & daily',x:'Every rack has a par: the moves it takes to fix it. Finish near par for 3 stars. Campaign levels never end and keep growing. The daily puzzle (📅) is one new rack each day, the same for everyone. Share your emoji move trace after solving it.',n:4,cap:2,o:[0,1,2,3],c:[[0,1],[2,3],[1,3]],s:[0,0,1],z:[[0,1,2,3],[0,0,1]],free:1}];
+ {t:'1 · Reroute a cable',x:'Look at the red cable: it is crossing a section that has no free lane. Tap the red cable itself. It will jump to the opposite channel. Watch the overflow counter change.',task:'DO THIS: tap one red cable. Continue unlocks when the rack is clear.',n:4,cap:2,o:[0,1,2,3],c:[[0,3],[1,3],[0,2]],s:[0,0,0],z:[[0,1,2,3],[0,1,0]],lock:'drag'},
+ {t:'2 · Reorder servers',x:'The cables are fixed to their endpoint servers. Move the endpoints closer together to shorten the cable run. Drag db-03 one slot upward next to web-01. Notice how the overlap changes as the server moves.',task:'DO THIS: drag db-03 into the target slot. Cable flipping is disabled for this exercise.',n:4,cap:1,o:[0,1,2,3],c:[[0,2],[1,3]],s:[0,0],z:[[0,2,1,3],[0,0]],lock:'flip'},
+ {t:'3 · Combine both moves',x:'This rack cannot be solved with just one trick. First reroute a cable to the other side, then reorder the servers so the remaining cable runs do not overlap. You can make either move first.',task:'DO THIS: use at least one cable flip and one server reorder, then clear every red row.',n:4,cap:1,o:[0,2,1,3],c:[[0,1],[2,3],[0,3]],s:[1,0,1],z:[[0,1,2,3],[0,0,1]]},
+ {t:'4 · Undo and limited hints',x:'Undo reverses your last move. In campaign mode you have only 3 hints per calendar day, shared across all levels and saved between visits. A hint highlights one useful move; it does not solve the rack for you.',task:'TRY IT: make a move, press undo, then solve this rack. Save your hints for later if you prefer.',n:5,cap:2,o:[0,1,2,3,4],c:[[0,1],[1,2],[2,3],[3,4],[0,2]],s:[0,0,1,1,0],z:[[0,1,2,3,4],[0,0,1,1,1]]},
+ {t:'5 · The daily rack',x:'The daily challenge is the same for everyone and changes once per day. It has no hints: your moves, experiments and deductions are all yours. Solve it once, then share your move pattern with friends.',task:'READY: start the campaign. Open the calendar button whenever you want today’s no-hint challenge.',n:4,cap:2,o:[0,1,2,3],c:[[0,1],[2,3],[1,3]],s:[0,0,1],z:[[0,1,2,3],[0,0,1]],free:1}];
 const lk=()=>gm==='tut'?(TUT[ts].lock||''):'';
 function loadTut(i){ts=i;const S=TUT[i];gm='tut';n=S.n;cap=S.cap;cabs=S.c.map(x=>[...x]);order=[...S.o];side=[...S.s];sol={o:S.z[0],s:S.z[1]};par=0;startS={o:[...order],s:[...side]};tutOk=false;moves=0;hist=[];mlog=[];solved=false;drag=null;ay=[];aLane=[];hintO=null;hintMsg='';$('#ov').style.display='none';hud();fit()}
-function tutCheck(){const S=TUT[ts];tutOk=tutOk||!!S.free||ovf()===0;$('#tt').textContent='step '+(ts+1)+'/'+TUT.length+' · '+S.t+(tutOk?' ✔':'');$('#tx').textContent=S.x+(hintMsg?'  → '+hintMsg:'');$('#tc').disabled=!tutOk;$('#tc').textContent=ts===TUT.length-1?'start playing':'continue ▶'}
+function tutCheck(){const S=TUT[ts];const didMove=moves>0,didBoth=mlog.includes('c')&&mlog.includes('s');const actionDone=ts===0?didMove&&ovf()===0:ts===1?didMove&&ovf()===0:ts===2?didBoth&&ovf()===0:ts===3?didMove&&ovf()===0:true;tutOk=tutOk||!!S.free||actionDone;$('#tt').textContent='step '+(ts+1)+'/'+TUT.length+' · '+S.t+(tutOk?' ✔':'');$('#tx').textContent=S.x+(hintMsg?'  → '+hintMsg:'');$('#tutTask').textContent=tutOk?'COMPLETE: great work. Continue when ready.':S.task;$('#tc').disabled=!tutOk;$('#tc').textContent=ts===TUT.length-1?'start playing':'continue ▶'}
 function endTut(){try{localStorage.setItem('cb_tut','1')}catch(e){}gm='camp';start()}
 $('#tc').onclick=()=>{if(ts<TUT.length-1)loadTut(ts+1);else endTut()};$('#tk').onclick=endTut;
 const dayNo=()=>Math.floor((Date.now()-new Date().getTimezoneOffset()*6e4)/864e5),pno=()=>dayNo()-20763;
 let dstat={played:0,streak:0,best:0,last:0},dsave=null,cdT=null;
+const HINTS_PER_DAY=3;let hintUse={day:dayNo(),count:0};try{const saved=JSON.parse(localStorage.getItem('cb_hints'));if(saved&&saved.day===dayNo())hintUse=saved}catch(e){}
+function hintsLeft(){return Math.max(0,HINTS_PER_DAY-(hintUse.day===dayNo()?hintUse.count:0))}
+function saveHintUse(){if(hintUse.day!==dayNo())hintUse={day:dayNo(),count:0};hintUse.count++;try{localStorage.setItem('cb_hints',JSON.stringify(hintUse))}catch(e){}}
 try{dstat=JSON.parse(localStorage.getItem('cb_stats'))||dstat;dsave=JSON.parse(localStorage.getItem('cb_daily'))}catch(e){}
 const shareText=r=>{const a=[...r.log].map(c=>c==='s'?'🟦':'🟧').slice(0,29);a.push('🟩');const rows=[];for(let i=0;i<a.length;i+=10)rows.push(a.slice(i,i+10).join(''));return 'Cabble #'+r.no+' '+'★'.repeat(r.stars)+'☆'.repeat(3-r.stars)+'\n'+r.moves+' moves (par '+r.par+')\n'+rows.join('\n')};
 function dailyDone(s){const d=dayNo();dsave={d,no:pno(),moves,par,stars:s,log:mlog.join('')};dstat.played++;dstat.streak=dstat.last===d-1?dstat.streak+1:1;dstat.best=Math.max(dstat.best,dstat.streak);dstat.last=d;
@@ -161,7 +174,7 @@ $('#mn').onclick=()=>{const g=$('#grid');g.innerHTML='';for(let i=1;i<=unlocked+
 $('#tot').textContent=Object.values(stars).reduce((a,b)=>a+b,0);$('#menu').style.display='flex';const c=g.querySelector('.cur');if(c)c.scrollIntoView({block:'center'})};
 $('#mx').onclick=()=>{$('#menu').style.display='none'};
 $('#menu').onclick=e=>{if(e.target.id==='menu')$('#mx').click()};
-[['pv','Previous level'],['un','Undo'],['hn','Hint'],['rs','Restart level'],['hp','How to play'],['nx','Next level'],['mn','Level menu'],['sd','Sound'],['dl','Daily puzzle']].forEach(([i,l])=>$('#'+i).setAttribute('aria-label',l));
+[['pv','Previous level'],['un','Undo'],['hn','Hint (3 per day; unavailable in daily challenge)'],['rs','Restart level'],['hp','How to play'],['nx','Next level'],['mn','Level menu'],['sd','Sound'],['dl','Daily puzzle']].forEach(([i,l])=>$('#'+i).setAttribute('aria-label',l));
 cv.setAttribute('role','img');cv.setAttribute('aria-label','Server rack puzzle board');cv.oncontextmenu=e=>e.preventDefault();
 addEventListener('keydown',e=>{if(e.metaKey||e.altKey)return;const k=e.key.toLowerCase(),open=['ov','dly','menu'].some(i=>$('#'+i).style.display==='flex');
 if(k==='escape'){$('#menu').style.display=$('#dly').style.display='none';return}
